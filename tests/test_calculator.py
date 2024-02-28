@@ -1,6 +1,9 @@
 '''My Calculator Test'''
 import unittest
-from calculator import AddCommand, SubtractCommand, MultiplyCommand, DivideCommand
+from plugins.addition import AddCommand
+from plugins.subtraction import SubtractCommand
+from plugins.multiplication import MultiplyCommand
+from plugins.division import DivideCommand
 
 class TestCalculatorCommands(unittest.TestCase):
     '''testing for calculator with commands'''
