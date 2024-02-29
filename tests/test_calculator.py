@@ -1,6 +1,6 @@
 '''My Calculator Test'''
 import unittest
-from plugins.addition import AddCommand
+from plugins.addition import AdditionCommand
 from plugins.subtraction import SubtractCommand
 from plugins.multiplication import MultiplyCommand
 from plugins.division import DivideCommand
@@ -9,7 +9,7 @@ class TestCalculatorCommands(unittest.TestCase):
     '''testing for calculator with commands'''
     def test_add(self):
         '''test addition'''
-        add = AddCommand(5, 3)
+        add = AdditionCommand(5, 3)
         self.assertEqual(add.execute(), 8)
 
     def test_subtract(self):

@@ -1,16 +1,12 @@
 '''addition plugin'''
-from calculator import Command
+from main import Command
 
+# Addition Command
 class AdditionCommand(Command):
-    '''addition command'''
-    def __init__(self, operands):
-        self.operands = operands
+    '''command for addition'''
+    def __init__(self, num1, num2):
+        self.num1 = num1
+        self.num2 = num2
 
     def execute(self):
-        result = sum(self.operands)
-        print(f"The result of addition is: {result}")
-
-if __name__ == "__main__":
-    operands = [int(x) for x in input("Enter numbers to add (separated by spaces): ").split()]
-    command = AdditionCommand(operands)
-    command.execute()
+        return self.num1 + self.num2

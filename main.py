@@ -1,39 +1,67 @@
-# '''main.py page'''
-# import sys
-# from decimal import Decimal, InvalidOperation
-# from calculator import Calculator
+'''main.py page with plugin code'''
+import os
+import importlib.util
+from abc import ABC, abstractmethod
 
-# def calculate_and_print(num1, num2, operation_name):
-#     '''calculate and print'''
-#     operation_mappings = {
-#         'add': Calculator.add,
-#         'subtract': Calculator.subtract,
-#         'multiply': Calculator.multiply,
-#         'divide': Calculator.divide
-#     }
+# Command Interface
+class Command(ABC):
+    '''command interface'''
+    @abstractmethod
+    def execute(self):
+        '''method to represent action being performed'''
 
-#     # Unified error handling for decimal conversion
-#     try:
-#         a_decimal, b_decimal = map(Decimal, [num1, num2])
-#         result = operation_mappings.get(operation_name) # Use get to handle unknown operations
-#         if result:
-#             print(f"The result of {num1} {operation_name} {num2} is equal to {result(a_decimal, b_decimal)}")
-#         else:
-#             print(f"Unknown operation: {operation_name}")
-#     except InvalidOperation:
-#         print(f"Invalid number input: {num1} or {num2} is not a valid number.")
-#     except ZeroDivisionError:
-#         print("Error: Division by zero.")
-#     except Exception as e: # Catch-all for unexpected errors
-#         print(f"An error occurred: {e}")
+class Calculator:
+    '''Calculator class'''
+    def __init__(self):
+        self.commands = {}
+        self.load_plugins()
 
-# def main():
-#     '''main function'''
-#     if len(sys.argv) != 4:
-#         print("Usage: python calculator_main.py <number1> <number2> <operation>")
-#         sys.exit(1)
-#     _, a, b, operation = sys.argv
-#     calculate_and_print(a, b, operation)
+    def load_plugins(self):
+        '''to load plugins'''
+        plugins_dir = "plugins"
+        if not os.path.exists(plugins_dir):
+            print("No plugins directory found.")
+            return
 
-# if __name__ == '__main__':
-#     main()
+        for filename in os.listdir(plugins_dir):
+            if filename.endswith(".py"):
+                plugin_name = os.path.splitext(filename)[0]
+                spec = importlib.util.spec_from_file_location(plugin_name, os.path.join(plugins_dir, filename))
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+
+                for name in dir(module):
+                    obj = getattr(module, name)
+                    if hasattr(obj, '__bases__') and Command in obj.__bases__:
+                        self.commands[name.lower()] = obj
+
+    def run(self):
+        '''to run program'''
+        while True:
+            user_input = input("Enter command:").strip().lower()
+
+            if user_input == "exit":
+                print("Exiting")
+                break
+
+            command_parts = user_input.split()
+            command_name = command_parts[0]
+
+            if command_name not in self.commands:
+                print("Invalid command.")
+                continue
+
+            try:
+                x = float(command_parts[1])
+                y = float(command_parts[2])
+            except (ValueError, IndexError):
+                print("Invalid input. Please enter valid numbers.")
+                continue
+
+            command = self.commands[command_name](x, y)
+            result = command.execute()
+            print("Result:", result)
+
+if __name__ == "__main__":
+    calculator = Calculator()
+    calculator.run()
