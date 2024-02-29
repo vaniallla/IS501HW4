@@ -1,6 +1,4 @@
 '''This page is refactored to have commands to perform the 4 operations'''
-import os
-import importlib.util
 from abc import ABC, abstractmethod
 
 # Command Interface
@@ -10,31 +8,75 @@ class Command(ABC):
     def execute(self):
         '''method to represent action being performed'''
 
+# Add Command
+class AddCommand(Command):
+    '''command for addition'''
+    def __init__(self, num1, num2):
+        self.num1 = num1
+        self.num2 = num2
+
+    def execute(self):
+        return self.num1 + self.num2
+
+# Subtract Command
+class SubtractCommand(Command):
+    '''command for subtract'''
+    def __init__(self, num1, num2):
+        self.num1 = num1
+        self.num2 = num2
+
+    def execute(self):
+        return self.num1 - self.num2
+
+# Multiply Command
+class MultiplyCommand(Command):
+    '''command for multiplication'''
+    def __init__(self, num1, num2):
+        self.num1 = num1
+        self.num2 = num2
+
+    def execute(self):
+        return self.num1 * self.num2
+
+# Divide Command
+class DivideCommand(Command):
+    '''command for division'''
+    def __init__(self, num1, num2):
+        self.num1 = num1
+        self.num2 = num2
+
+    def execute(self):
+        if self.num2 == 0:
+            return "Error: Division by zero"
+        return self.num1 / self.num2
+
+# Menu Command
+class MenuCommand(Command):
+    '''menu'''
+    def __init__(self, command_dict):
+        self.command_dict = command_dict
+
+    def execute(self):
+        print("Available commands:")
+        for command_name in self.command_dict:
+            print(command_name)
+
 # Calculator
 class Calculator:
     '''calculator class'''
     def __init__(self):
-        self.commands = self.load_commands()
-
-    def load_commands(self):
-        '''load commands'''
-        commands = {}
-        plugin_dir = 'plugins'
-        for file_name in os.listdir(plugin_dir):
-            if file_name.endswith('.py') and file_name != '__init__.py':
-                module_name = os.path.splitext(file_name)[0]
-                spec = importlib.util.spec_from_file_location(module_name, os.path.join(plugin_dir, file_name))
-                plugin_module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(plugin_module)
-                for name, obj in plugin_module.__dict__.items():
-                    if isinstance(obj, type) and issubclass(obj, Command) and obj != Command:
-                        commands[name.lower()] = obj()
-        return commands
+        self.commands = {
+            "add": AddCommand,
+            "subtract": SubtractCommand,
+            "multiply": MultiplyCommand,
+            "divide": DivideCommand,
+            "menu": MenuCommand
+        }
 
     def run(self):
         '''executing calculator commands'''
         while True:
-            print("Available commands: " + ", ".join(self.commands.keys()) + ", exit")
+            print("Available commands: add, subtract, multiply, divide, menu, exit")
             user_input = input("Enter command and numbers in the following format (add 5 3): ").strip().lower()
 
             if user_input == "exit":
@@ -48,9 +90,9 @@ class Calculator:
                 print("Invalid command.")
                 continue
 
-            # if command_name == "menu":
-            #     MenuCommand(self.commands).execute()
-            #     continue
+            if command_name == "menu":
+                MenuCommand(self.commands).execute()
+                continue
 
             try:
                 x = float(command_parts[1])
